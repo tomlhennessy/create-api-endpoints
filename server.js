@@ -99,8 +99,22 @@ const server = http.createServer((req, res) => {
     if ((req.method === 'PUT' || req.method === 'PATCH')  && req.url.startsWith('/dogs/')) {
       const urlParts = req.url.split('/');
       if (urlParts.length === 3) {
-        const dogId = urlParts[2];
-        // Your code here
+        const dogId = Number(urlParts[2]);
+        const dog = dogs.find(d => d.dogId === dogId);
+
+        if (dog) {
+          const { name, age } = req.body;
+          dog.name = name || dog.name;
+          dog.age = age || dog.age;
+
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.write(JSON.stringify(dog));
+        } else {
+          res.statusCode = 404;
+          res.setHeader('Content-Type', 'application/json');
+          res.write(JSON.stringify({error: "Dog not found"}));
+        }
       }
       return res.end();
     }
@@ -109,8 +123,19 @@ const server = http.createServer((req, res) => {
     if (req.method === 'DELETE' && req.url.startsWith('/dogs/')) {
       const urlParts = req.url.split('/');
       if (urlParts.length === 3) {
-        const dogId = urlParts[2];
-        // Your code here
+        const dogId = Number(urlParts[2]);
+        const dogIndex = dogs.findIndex(d => d.dogId === dogId);
+
+        if (dogIndex !== -1) {
+          dogs.splice(dogIndex, 1);
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.write(JSON.stringify({ message: "Successfully deleted"}));
+        } else {
+          res.statusCode = 404;
+          res.setHeader('Content-Type', 'application/json');
+          res.write(JSON.stringify({error: "Dog not found"}));
+        }
       }
       return res.end();
     }
